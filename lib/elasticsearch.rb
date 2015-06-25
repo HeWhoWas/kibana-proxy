@@ -21,14 +21,7 @@ end
 
 def open_index(index_name)
   @@es_client.indices.open index: index_name
-  loop do
-    begin
-      stats = @@es_client.indices.stats index: index_name
-      break
-    rescue Elasticsearch::Transport::Transport::Errors => e
-      puts "Waiting for index to open..."
-    end
-  end
+  @@es_client.cluster.health wait_for_status: 'yellow'
 end
 
 def close_index(index_name)
