@@ -11,4 +11,12 @@ and if it finds an elasticsearch query about to be performed will:
 
 As above, it is POC only and probably has a lot of issues.
 
+## Configuration
+
+You need to update the values held in config.rb:
+
+* UPSTREAM_KIBANA_HOST = The kibana server IP or hostname.
+* UPSTREAM_ELASTICSEARCH_HOST = The elasticsearch server kibana normally talks to.
+* UPSTREAM_ELASTICSEARCH_PORT = The port too connecto to elasticsearch over.
+
 Relates to https://github.com/elastic/kibana/issues/4308
