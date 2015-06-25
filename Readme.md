@@ -23,7 +23,9 @@ You need to update the values held in config.rb:
 
 The following will run kibana-proxy on 0.0.0.0:80
 
- cd kibana-proxy
- rackup -p 80 --host 0.0.0.0
+<code> 
+cd kibana-proxy </br>
+rackup -p 80 --host 0.0.0.0
+</code>
 
 Relates to https://github.com/elastic/kibana/issues/4308
