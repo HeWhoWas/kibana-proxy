@@ -23,6 +23,7 @@ class KibanaProxy < Sinatra::Base
     }
 
     http = Net::HTTP.new(uri.host, uri.port)
+    http.read_timeout = 500
     index_opened = false
 
     if @request.request_method == 'POST'
