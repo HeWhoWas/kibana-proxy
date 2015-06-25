@@ -35,7 +35,7 @@ class KibanaProxy < Sinatra::Base
         index = parse_elasticsearch_index(uri.request_uri, body)
         if index.nil?
           puts "Unable to identify elasticsearch index for request"
-        elsif (index != ".kibana4") && (is_index_closed?(index))
+        elsif (index != KIBANA_INDEX) && (is_index_closed?(index))
           open_index(index)
           index_opened = true
         end
