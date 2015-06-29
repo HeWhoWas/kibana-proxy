@@ -5,7 +5,7 @@ configure do
 end
 
 def is_elasticsearch_request?(req_path)
-  req_path =~ /.elasticsearch.*/
+  req_path =~ /.elasticsearch\/_mget.*/
 end
 
 def is_index_closed?(index_name)
@@ -33,9 +33,11 @@ def parse_elasticsearch_index(req_path, req_body)
 
   if req_body.include?("\n") #Kibana can send multiple JSON requests in the same body.
     json_parts = req_body.split("\n")
-  else
+  elsif ! req_body.empty?
     json_parts = []
     json_parts << req_body
+  else
+    return nil
   end
 
   json_parts.each do | json_part |

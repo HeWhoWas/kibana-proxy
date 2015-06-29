@@ -11,7 +11,7 @@ class KibanaProxy < Sinatra::Base
   end
 
   proxy = lambda do |path|
-    uri = URI('http://' + UPSTREAM_KIBANA_HOST + "/" + path)
+    uri = URI('http://' + UPSTREAM_KIBANA_HOST + @request.env["PATH_INFO"])
     uri.query = URI.encode_www_form(params) if (request.request_method == 'GET')
 
     # New request data
@@ -43,6 +43,9 @@ class KibanaProxy < Sinatra::Base
 
       req.body = body
       req.delete("content-type")
+    elsif @request.request_method == 'PUT'
+      req = Net::HTTP::Put.new uri.request_uri
+      req.body = @request.body.read
     else
       req = Net::HTTP::Get.new uri.request_uri
     end
@@ -59,7 +62,6 @@ class KibanaProxy < Sinatra::Base
 
     # Return
     status res.code
-    content_type res.header['content-type']
     headers res.to_hash
     body res.body
   end
@@ -68,5 +70,6 @@ class KibanaProxy < Sinatra::Base
 
   get '/*', &proxy
   post '/*', &proxy
+  put '/*', &proxy
 end
 
