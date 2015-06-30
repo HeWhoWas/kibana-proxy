@@ -1,14 +1,19 @@
 require 'elasticsearch'
+require 'resque'
+require 'resque-scheduler'
+require_relative 'close_index_job'
 
 configure do
   @@es_client = Elasticsearch::Client.new({hosts: [ { host: UPSTREAM_ELASTICSEARCH_HOST, port: UPSTREAM_ELASTICSEARCH_PORT}], trace:false,log:false,transport_options: {request: { timeout: 30000 }}})
+  Resque.redis = Redis.new
 end
 
 def is_elasticsearch_request?(req_path)
-  req_path =~ /.elasticsearch\/_mget.*/
+  req_path =~ /.elasticsearch\/_m.*/
 end
 
 def is_index_closed?(index_name)
+  schedule_or_update_index_accesstime(index_name)
   if(@@es_client.indices.exists(index: index_name))
     begin
       @@es_client.indices.stats index: index_name
@@ -22,6 +27,7 @@ end
 def open_index(index_name)
   @@es_client.indices.open index: index_name
   @@es_client.cluster.health wait_for_status: 'yellow'
+
 end
 
 def close_index(index_name)
@@ -56,4 +62,8 @@ def parse_elasticsearch_index(req_path, req_body)
       end
     end
   end
+end
+
+def schedule_or_update_index_accesstime(index_name, timeout)
+  Resque.enqueue_in(timeout, CloseIndexJob, :index_name => index_name)
 end

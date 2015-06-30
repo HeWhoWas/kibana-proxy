@@ -1,9 +1,13 @@
 require 'sinatra'
 require 'net/http'
 require 'json'
+require 'thread'
 require_relative('config')
 
 class KibanaProxy < Sinatra::Base
+  require_relative('lib/elasticsearch')
+  Resque.redis = Redis.new
+
   helpers do
     def request_headers
       @request.env.inject({}){|acc, (k,v)| acc[$1.downcase] = v if k =~ /^http_(.*)/i; acc}
@@ -65,8 +69,6 @@ class KibanaProxy < Sinatra::Base
     headers res.to_hash
     body res.body
   end
-
-  require_relative('lib/elasticsearch')
 
   get '/*', &proxy
   post '/*', &proxy
