@@ -13,7 +13,7 @@ def is_elasticsearch_request?(req_path)
 end
 
 def is_index_closed?(index_name)
-  schedule_or_update_index_accesstime(index_name)
+  update_closejob(index_name, INDEX_TIMEOUT)
   if(@@es_client.indices.exists(index: index_name))
     begin
       @@es_client.indices.stats index: index_name
@@ -64,6 +64,7 @@ def parse_elasticsearch_index(req_path, req_body)
   end
 end
 
-def schedule_or_update_index_accesstime(index_name, timeout)
+def update_closejob(index_name, timeout)
+  Resque.remove_delayed(CloseIndexJob, :index_name => index_name)
   Resque.enqueue_in(timeout, CloseIndexJob, :index_name => index_name)
 end
