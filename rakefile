@@ -1,0 +1,15 @@
+require 'resque'
+require 'resque/tasks'
+require 'resque/errors'
+require 'resque-scheduler'
+require 'resque/scheduler/tasks'
+require_relative 'lib/close_index_job'
+
+Resque.redis = Redis.new(:host => "localhost", :port => 6379)
+
+
+desc 'Run the resque-web server'
+task :web => :environment do
+  require 'resque/server'
+  Resque::Server.run! :port=>7003
+end
